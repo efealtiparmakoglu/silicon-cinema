@@ -1,0 +1,8 @@
+{
+  "program": "life",
+  "seed": 7,
+  "frames": 120,
+  "fps": 14,
+  "max_cycles": 4000000000,
+  "output": "renders/life.gif"
+}

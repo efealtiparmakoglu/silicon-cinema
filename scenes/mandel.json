@@ -1,0 +1,7 @@
+{
+  "program": "mandel",
+  "seed": 9,
+  "frames": 36,
+  "fps": 8,
+  "output": "renders/mandel.gif"
+}

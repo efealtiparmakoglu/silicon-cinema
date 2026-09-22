@@ -1,0 +1,59 @@
+// Yildiz alani: 3B uzayda izleyiciye ucen yildizlar, derinlige gore renk.
+fn rnd(n) {
+  let r = rand(0);
+  if (r < 0) {
+    r = 0 - r;
+  }
+  return r % n;
+}
+
+fn main() {
+  rand($SEED);
+  let n = 140;
+  let sx = arr(n);
+  let sy = arr(n);
+  let sz = arr(n);
+  let i = 0;
+  while (i < n) {
+    sx[i] = rnd(256) - 128;
+    sy[i] = rnd(144) - 72;
+    sz[i] = rnd(80) + 16;
+    i = i + 1;
+  }
+  let t = 0;
+  while (t < $FRAMES) {
+    flush();
+    i = 0;
+    while (i < n) {
+      sz[i] = sz[i] - 2;
+      let z = sz[i];
+      if (z < 2) {
+        sz[i] = rnd(60) + 60;
+        sx[i] = rnd(256) - 128;
+        sy[i] = rnd(144) - 72;
+      } else {
+        let px = 64 + sx[i] * 64 / z;
+        let py = 36 + sy[i] * 40 / z;
+        let d = 60 - z;
+        if (d < 0) {
+          d = 0;
+        }
+        let r = d * 8;
+        if (r > 31) {
+          r = 31;
+        }
+        let g = d * 7;
+        if (g > 63) {
+          g = 63;
+        }
+        let b = 8 + d * 2;
+        if (b > 31) {
+          b = 31;
+        }
+        pixel(px, py, r * 2048 + g * 32 + b);
+      }
+      i = i + 1;
+    }
+    t = t + 1;
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "program": "starfield",
+  "seed": 42,
+  "frames": 240,
+  "fps": 20,
+  "output": "renders/starfield.gif"
+}

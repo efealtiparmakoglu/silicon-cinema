@@ -1,0 +1,7 @@
+{
+  "program": "balls",
+  "seed": 11,
+  "frames": 200,
+  "fps": 20,
+  "output": "renders/balls.gif"
+}

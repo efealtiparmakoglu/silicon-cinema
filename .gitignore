@@ -1,0 +1,4 @@
+__pycache__/
+*.frames/
+.DS_Store
+fuzz_fail_*.cin

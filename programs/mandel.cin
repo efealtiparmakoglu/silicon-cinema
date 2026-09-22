@@ -1,0 +1,54 @@
+// Mandelbrot: sabit noktali (8.8) aritmetik, iterasyona gore palet, yavas zoom.
+fn main() {
+  rand($SEED);
+  let t = 0;
+  while (t < $FRAMES) {
+    flush();
+    let zoom = 256 + t * 4;
+    let y = 0;
+    while (y < 72) {
+      let x = 0;
+      while (x < 128) {
+        let cx = (x - 64) * 1792 / zoom - 128;
+        let cy = (y - 36) * 896 / zoom;
+        let zx = 0;
+        let zy = 0;
+        let it = 0;
+        let kacisti = 0;
+        while (it < 24) {
+          let zx2 = zx * zx / 256;
+          let zy2 = zy * zy / 256;
+          if (zx2 + zy2 > 1024) {
+            kacisti = 1;
+            it = 24;
+          } else {
+            let nx = zx2 - zy2 + cx;
+            zy = zx * zy / 128 + cy;
+            zx = nx;
+            it = it + 1;
+          }
+        }
+        if (kacisti == 1) {
+          let r = it * 6;
+          if (r > 31) {
+            r = 31;
+          }
+          let g = it * 8;
+          if (g > 63) {
+            g = 63;
+          }
+          let b = 31 - it;
+          if (b < 0) {
+            b = 0;
+          }
+          pixel(x, y, r * 2048 + g * 32 + b);
+        } else {
+          pixel(x, y, 0);
+        }
+        x = x + 1;
+      }
+      y = y + 1;
+    }
+    t = t + 1;
+  }
+}

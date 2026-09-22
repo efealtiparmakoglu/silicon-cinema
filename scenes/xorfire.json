@@ -1,0 +1,7 @@
+{
+  "program": "xorfire",
+  "seed": 3,
+  "frames": 160,
+  "fps": 16,
+  "output": "renders/xorfire.gif"
+}

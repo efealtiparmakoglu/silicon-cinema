@@ -1,0 +1,58 @@
+// Toplar: seksek oynayan renkli toplar, iz birakir.
+fn rnd(n) {
+  let r = rand(0);
+  if (r < 0) {
+    r = 0 - r;
+  }
+  return r % n;
+}
+
+fn main() {
+  rand($SEED);
+  let n = 14;
+  let x = arr(n);
+  let y = arr(n);
+  let vx = arr(n);
+  let vy = arr(n);
+  let c = arr(n);
+  let i = 0;
+  while (i < n) {
+    x[i] = rnd(128);
+    y[i] = rnd(72);
+    vx[i] = rnd(7) - 3;
+    vy[i] = rnd(5) - 2;
+    if (vx[i] == 0) {
+      vx[i] = 2;
+    }
+    if (vy[i] == 0) {
+      vy[i] = 1;
+    }
+    c[i] = rnd(31) * 2048 + rnd(63) * 32 + rnd(31);
+    i = i + 1;
+  }
+  let t = 0;
+  while (t < $FRAMES) {
+    flush();
+    i = 0;
+    while (i < n) {
+      // iz: eski konumu soluk birak, hareket ettir
+      pixel(x[i], y[i], 0);
+      x[i] = x[i] + vx[i];
+      y[i] = y[i] + vy[i];
+      if (x[i] < 1 | x[i] > 126) {
+        vx[i] = 0 - vx[i];
+        x[i] = x[i] + vx[i] * 2;
+      }
+      if (y[i] < 1 | y[i] > 70) {
+        vy[i] = 0 - vy[i];
+        y[i] = y[i] + vy[i] * 2;
+      }
+      pixel(x[i], y[i], c[i]);
+      pixel(x[i] + 1, y[i], c[i]);
+      pixel(x[i], y[i] + 1, c[i]);
+      pixel(x[i] + 1, y[i] + 1, c[i]);
+      i = i + 1;
+    }
+    t = t + 1;
+  }
+}

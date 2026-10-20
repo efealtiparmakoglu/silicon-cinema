@@ -1,5 +1,7 @@
 # 🖥️ silicon-cinema
 
+[![CI](https://github.com/efealtiparmakoglu/silicon-cinema/actions/workflows/ci.yml/badge.svg)](https://github.com/efealtiparmakoglu/silicon-cinema/actions/workflows/ci.yml)
+
 **EN:** A complete computing stack, built from scratch and verified end-to-end: a JSON-configurable **32-bit CPU emulator**, an **assembler**, a **compiler for a home-made systems language (CIN)**, and a framebuffer "OS" — then **demo programs written in CIN**, compiled, executed on the emulated CPU, and filmed as animated GIFs.
 
 **TR:** Sıfırdan inşa edilmiş ve uçtan uca doğrulanmış eksiksiz bir bilgisayar yığını: **32-bit CPU emülatörü**, **assembler**, **kendi yazdığımız CIN dilinin derleyicisi** ve framebuffer "işletim sistemi" — sonra CIN ile yazılmış **demo programları**: derlenir, taklit CPU'da çalışır, animasyonlu GIF olarak filmlenir.
@@ -60,15 +62,37 @@ python3 tests/test_all.py   # tüm kapılar
 python3 fuzz.py 300         # 300 rastgele program
 ```
 
-## 🚀 Usage / Kullanım
+## 🚀 Quick start / Hızlı başlangıç
+
+The compiler, CPU, reference interpreter and PNG writer use the **Python standard library**. NumPy is not required. Run commands from the repository root. GIF rendering also requires **ffmpeg** on PATH; the render CLI checks for it before emulating the program.
+
+**TR:** Derleyici, CPU, referans yorumlayıcı ve PNG yazıcı Python standart kütüphanesiyle çalışır; NumPy gerekmez. Komutları depo kökünden çalıştır. GIF için PATH üzerinde ffmpeg gerekir.
 
 ```bash
-pip install numpy   # yalnızca referans yorumlayıcı doğrulaması için gerekmiyor; CPU saf Python
+# Compiler/CPU differential checks, including 60 seeded random programs
+python3 tests/test_all.py
+
+# Quick render: at most four frames; full scene outputs stay untouched
+python3 render.py --scene scenes/starfield.json --preview
+
+# Choose a destination for an experiment
+python3 render.py --scene scenes/life.json --preview --output work/life.gif
+
+# Full render: uses the scene's configured frame count and output path
 python3 render.py --scene scenes/starfield.json
-python3 render.py --scene scenes/life.json --preview
 ```
 
-GIF birleştirme için ffmpeg. Gerisi yalnızca stdlib.
+Without `--output`, preview writes `renders/starfield_preview.gif` and its final-frame PNG. A full render still uses the path in the scene JSON. **TR:** Önizleme en fazla dört kare üretir; normal render dosyasının üstüne yazmaz. `--output` ile farklı bir GIF hedefi seçebilirsin.
+
+### Render CLI regression checks
+
+```bash
+python3 tests/test_render_cli.py
+```
+
+These three integration tests compile and emulate a tiny real CIN program, encode a GIF with ffmpeg, count the result with ffprobe, check that previews preserve an existing full render, and check explicit destinations and missing-ffmpeg errors. Both ffmpeg and ffprobe are required for this test file; it reports a skip if they are absent. CI installs them and runs both test scripts on Python 3.11/3.12.
+
+For a larger compiler experiment, `python3 fuzz.py 300` compares 300 seeded generated programs against the independent reference interpreter.
 
 ## 🎛️ ISA quick reference / ISA kısaca
 

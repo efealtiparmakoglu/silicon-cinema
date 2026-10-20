@@ -49,12 +49,27 @@ def rgb565_kare(frame):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--scene", required=True)
-    ap.add_argument("--preview", action="store_true")
+    ap.add_argument("--preview", action="store_true",
+                    help="Render at most four frames to a separate *_preview.gif")
+    ap.add_argument("--output", help="Override the scene's GIF output path")
     args = ap.parse_args()
+
+    ffmpeg = shutil.which("ffmpeg")
+    if ffmpeg is None:
+        ap.error("ffmpeg is required to render GIFs; install it and try again")
 
     sc = json.load(open(args.scene, encoding="utf-8"))
     src = open(f"programs/{sc['program']}.cin", encoding="utf-8").read()
     frames_n = sc.get("frames", 240)
+    if not isinstance(frames_n, int) or frames_n < 1:
+        ap.error("scene frames must be a positive integer")
+    if args.preview:
+        frames_n = min(frames_n, 4)
+    out = args.output or sc["output"]
+    if not out.lower().endswith(".gif"):
+        ap.error("output must end in .gif")
+    if args.preview and not args.output:
+        out = out[:-4] + "_preview.gif"
     src = src.replace("$SEED", str(sc.get("seed", 1))).replace("$FRAMES", str(frames_n))
 
     words, labels = derle(src)
@@ -62,7 +77,6 @@ def main():
     print(f"  derlendi: {len(words)} sozcuk, {cpu.cycles:,} cycle, "
           f"{len(cpu.frames)} kare, {len(labels)} etiket")
 
-    out = sc["output"]
     os.makedirs(os.path.dirname(out) or ".", exist_ok=True)
     tmp = out + ".frames"
     shutil.rmtree(tmp, ignore_errors=True)
@@ -87,14 +101,14 @@ def main():
                     + chunk(b"IDAT", zlib.compress(bytes(raw), 6)) + chunk(b"IEND", b""))
 
     # son kareyi PNG olarak birak
-    shutil.copy(f"{tmp}/f{len(cpu.frames) - 1:05d}.png", out.replace(".gif", ".png"))
+    shutil.copy(f"{tmp}/f{len(cpu.frames) - 1:05d}.png", out[:-4] + ".png")
 
     fps = sc.get("fps", 20)
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(fps),
+    subprocess.run([ffmpeg, "-y", "-loglevel", "error", "-framerate", str(fps),
                     "-i", f"{tmp}/f%05d.png",
                     "-vf", "palettegen=max_colors=256:stats_mode=diff", f"{tmp}/pal.png"],
                    check=True)
-    subprocess.run(["ffmpeg", "-y", "-loglevel", "error", "-framerate", str(fps),
+    subprocess.run([ffmpeg, "-y", "-loglevel", "error", "-framerate", str(fps),
                     "-i", f"{tmp}/f%05d.png", "-i", f"{tmp}/pal.png",
                     "-lavfi", "paletteuse=dither=bayer:bayer_scale=3:diff_mode=rectangle",
                     "-loop", "0", out], check=True)
